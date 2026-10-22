@@ -59,11 +59,14 @@ ENV GIT_DIFF_HASH=${GIT_DIFF_HASH}
 
 WORKDIR /app
 
-# Install runtime dependencies (ffmpeg, libsndfile1 for audio; curl for debugging)
+# Install runtime dependencies and refresh the OS CA store. Debian fixed the
+# emSign ECC Root CA - G3 issue in ca-certificates 20250419~deb12u2 (DSA-6572-1).
 RUN apt-get update && apt-get install -y --no-install-recommends \
+    ca-certificates \
     ffmpeg \
     libsndfile1 \
     curl \
+    && dpkg-query -W -f='ca-certificates ${Version}\n' ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy deps venv separately so it stays cached when only source changes
